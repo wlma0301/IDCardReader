@@ -14,6 +14,7 @@ import com.wlma.export.excel.Excel2007Write;
 import com.wlma.export.excel.XCell;
 import com.wlma.export.excel.XRow;
 import com.wlma.export.word.Word2003Write;
+import com.wlma.export.word.Word2007Write;
 
 
 
@@ -39,15 +40,15 @@ public class DAOTest {
 				xRow.addXCell(new XCell(2, 5, 5, rs.getString("birthday")));
 				xRow.addXCell(new XCell(3, 6, 6, rs.getString("sex")));
 				in = rs.getBinaryStream("Photo");
-				xCell = new XCell(4, 6, 5, in);
+				xCell = new XCell(4, 1, 7, in);
 				xRows.put(index, xRow);
 				index ++;
 			}
 			XRow[] xRowList = xRows.values().toArray(new XRow[0]);
-			String filePath = "C:/±Òºõ.doc";
+			String filePath = "C:/±Òºõ.docx";
 			//Excel2003Write excelWrite = new Excel2003Write(filePath, xRowList);
-			Word2003Write excelWrite = new Word2003Write(filePath, xRowList);
-			excelWrite.writeInfo();
+			Word2007Write excelWrite = new Word2007Write(filePath, xRowList);
+			//excelWrite.writeInfo();
 			excelWrite.wirteImage(xCell);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

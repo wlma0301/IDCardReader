@@ -66,31 +66,41 @@ public class Word2003Write implements Write {
 	@Override
 	public void writeInfo() {
 		range = document.getRange();
-		table = new TableIterator(range).next();
-
-		if (table != null) {
-			int rowNum = table.numRows();
-			XRow xRow = xRowList[0];
-			if (xRow != null) {
-				XCell[] xCellList = xRow.getXCells();
-				for (int j = 0; j < xCellList.length; j ++) {
-					XCell xCell = xCellList[j];
-					if (xCell.getRow() <= rowNum) {
-						tableRow = table.getRow(xCell.getRow());
-					} else {	//填充的数据超出最大行数
-						System.out.println("无此行");
-					}
-					if (xCell != null) {
-						tableCell = tableRow.getCell(xCell.getColumn());
-						System.out.println((String) xCell.getValue());
-						if (tableCell != null) {
-							paragraph = tableCell.getParagraph(0);
-							paragraph.replaceText(paragraph.text(), (String) xCell.getValue());
-						}
-					}
-				}
-			}
-		}
+		XRow xRow = xRowList[0];
+		XCell xCell = xRow.getXCell(0);
+		System.out.println(xCell.getNo()+":"+xCell.getValue());
+		range.replaceText("{姓名}", (String) xCell.getValue());
+		xCell = xRow.getXCell(1);
+		System.out.println(xCell.getNo()+":"+xCell.getValue());
+		range.replaceText("{性别}", (String) xCell.getValue());
+		xCell = xRow.getXCell(2);
+		System.out.println(xCell.getNo()+":"+xCell.getValue());
+		range.replaceText("{身份证号}", (String) xCell.getValue());
+//		table = new TableIterator(range).next();
+//
+//		if (table != null) {
+//			int rowNum = table.numRows();
+//			XRow xRow = xRowList[0];
+//			if (xRow != null) {
+//				XCell[] xCellList = xRow.getXCells();
+//				for (int j = 0; j < xCellList.length; j ++) {
+//					XCell xCell = xCellList[j];
+//					if (xCell.getRow() <= rowNum) {
+//						tableRow = table.getRow(xCell.getRow());
+//					} else {	//填充的数据超出最大行数
+//						System.out.println("无此行");
+//					}
+//					if (xCell != null) {
+//						tableCell = tableRow.getCell(xCell.getColumn());
+//						System.out.println((String) xCell.getValue());
+//						if (tableCell != null) {
+//							paragraph = tableCell.getParagraph(0);
+//							paragraph.replaceText(paragraph.text(), (String) xCell.getValue());
+//						}
+//					}
+//				}
+//			}
+//		}
 		save();
 	}
 
