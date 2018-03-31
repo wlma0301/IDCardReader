@@ -22,10 +22,12 @@ import com.wlma.dao.DBConnection;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.JLabel;
 import javax.swing.BoxLayout;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import javax.swing.UIManager;
 import java.awt.GridLayout;
@@ -35,7 +37,6 @@ import javax.swing.JTextField;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import net.miginfocom.swing.MigLayout;
 
 public class SettingUI extends JFrame {
 
@@ -67,7 +68,7 @@ public class SettingUI extends JFrame {
 	 */
 	public SettingUI() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 745, 455);
+		setBounds(100, 100, 950, 455);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -86,51 +87,54 @@ public class SettingUI extends JFrame {
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setRightComponent(splitPane_1);
 		
-		JPanel panel_1 = new JPanel();
-		splitPane_1.setLeftComponent(panel_1);
-		panel_1.setLayout(new GridLayout(4, 11, 2, 2));
-		
-		JLabel lblNewLabel = new JLabel("New label");
-		panel_1.add(lblNewLabel);
-		
-		JLabel lblNewLabel_2 = new JLabel("New label");
-		panel_1.add(lblNewLabel_2);
-		
-		JLabel label_1 = new JLabel("New label");
-		panel_1.add(label_1);
-		
-		JLabel label = new JLabel("New label");
-		panel_1.add(label);
-		
-		JLabel label_7 = new JLabel("New label");
-		panel_1.add(label_7);
-		
-		JLabel label_6 = new JLabel("New label");
-		panel_1.add(label_6);
-		
-		JLabel label_5 = new JLabel("New label");
-		panel_1.add(label_5);
-		
-		JLabel label_4 = new JLabel("New label");
-		panel_1.add(label_4);
-		
-		JLabel label_3 = new JLabel("New label");
-		panel_1.add(label_3);
-		
-		JLabel label_2 = new JLabel("New label");
-		panel_1.add(label_2);
-		
-		JLabel lblNewLabel_3 = new JLabel("New label");
-		panel_1.add(lblNewLabel_3);
-		
-		JLabel lblNewLabel_1 = new JLabel("New label");
-		panel_1.add(lblNewLabel_1);
-		
-		JLabel lblNewLabel_4 = new JLabel("New label");
-		panel_1.add(lblNewLabel_4);
-		
-		JLabel lblNewLabel_5 = new JLabel("New label");
-		panel_1.add(lblNewLabel_5);
+		JPanel modelSettingPanel = new ModelSettingPanel();
+		modelSettingPanel.setPreferredSize(new Dimension(600, 120));
+		splitPane_1.setLeftComponent(modelSettingPanel);
+//		JPanel panel_1 = new JPanel();
+//		splitPane_1.setLeftComponent(panel_1);
+//		panel_1.setLayout(new GridLayout(4, 11, 2, 2));
+//		
+//		JLabel lblNewLabel = new JLabel("New label");
+//		panel_1.add(lblNewLabel);
+//		
+//		JLabel lblNewLabel_2 = new JLabel("New label");
+//		panel_1.add(lblNewLabel_2);
+//		
+//		JLabel label_1 = new JLabel("New label");
+//		panel_1.add(label_1);
+//		
+//		JLabel label = new JLabel("New label");
+//		panel_1.add(label);
+//		
+//		JLabel label_7 = new JLabel("New label");
+//		panel_1.add(label_7);
+//		
+//		JLabel label_6 = new JLabel("New label");
+//		panel_1.add(label_6);
+//		
+//		JLabel label_5 = new JLabel("New label");
+//		panel_1.add(label_5);
+//		
+//		JLabel label_4 = new JLabel("New label");
+//		panel_1.add(label_4);
+//		
+//		JLabel label_3 = new JLabel("New label");
+//		panel_1.add(label_3);
+//		
+//		JLabel label_2 = new JLabel("New label");
+//		panel_1.add(label_2);
+//		
+//		JLabel lblNewLabel_3 = new JLabel("New label");
+//		panel_1.add(lblNewLabel_3);
+//		
+//		JLabel lblNewLabel_1 = new JLabel("New label");
+//		panel_1.add(lblNewLabel_1);
+//		
+//		JLabel lblNewLabel_4 = new JLabel("New label");
+//		panel_1.add(lblNewLabel_4);
+//		
+//		JLabel lblNewLabel_5 = new JLabel("New label");
+//		panel_1.add(lblNewLabel_5);
 		
 		JPanel panel = new JPanel();
 		panel.setToolTipText("\u9009\u62E9Excel\u6A21\u7248");
