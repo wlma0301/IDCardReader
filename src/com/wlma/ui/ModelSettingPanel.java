@@ -12,8 +12,17 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
+import javax.swing.JToggleButton;
+import javax.swing.JScrollBar;
+import javax.swing.DefaultComboBoxModel;
 
 public class ModelSettingPanel extends JPanel {
 
@@ -27,6 +36,7 @@ public class ModelSettingPanel extends JPanel {
 	private JTextField issueOrganTitleTextField;
 	private JTextField beginTitleTextField;
 	private JTextField endTitleTextField;
+	private JTextField photoTitleTextField;
 
 	private JComboBox nameRowComboBox;
 	private JComboBox nameColumnComboBox;
@@ -44,27 +54,73 @@ public class ModelSettingPanel extends JPanel {
 	private JComboBox newAddressColumnComboBox;
 	private JComboBox issueOrganRowComboBox;
 	private JComboBox issueOrganColumnComboBox;
-	private JComboBox begnRowComboBox;
+	private JComboBox beginRowComboBox;
 	private JComboBox beginColumnComboBox;
 	private JComboBox endRowComboBox;
 	private JComboBox endColumnComboBox;
+	private JComboBox photoRowComboBox;
+	private JComboBox photoColumnComboBox;
+
 
 	Map columnIndexMap = null;
 	Map rowIndexMap = null;
+	private JComboBox writeTypeComboBox;
+	private JLabel label_1;
+	private JLabel label_isTitle;
+	private JLabel label_3;
+	private JLabel label_4;
+	private JLabel label_5;
+	private JLabel label_6;
+	private JLabel label_7;
+	private JLabel label_2;
+	private JLabel label_8;
+	private JLabel photoLabel;
+	
+	private JLabel label_startline;
+	private JComboBox startLineComboBox;
+	private JCheckBox isTtitleCheckBox;
 
+	private JCheckBox nameExportCheckBox;
+	private JCheckBox cardNoExportCheckBox;
+	private JCheckBox sexExportCheckBox;
+	private JCheckBox folkExportCheckBox;
+	private JCheckBox birthdayExportCheckBox;
+	private JCheckBox addressExportCheckBox;
+	private JCheckBox newAddressExportCheckBox;
+	private JCheckBox issueOrganExportCheckBox;
+	private JCheckBox beginExportCheckBox;
+	private JCheckBox endExportCheckBox;
+	private JCheckBox photoExportCheckBox;
+	
+	private String sModelType, sWriteType, sModelName, sModelPath;
+	private int iStartLine;
+	private boolean bIsInuse, bExportTitle;
+	private String sCardNoTitle, sNameTitle, sSexTitle, sFolkTitle, sBirthdayTitle, sAddressTitle,
+		sNewAddressTitle, sIssueOrganTitle, sBeginDateTitle, sEndDateTitle, sPhotoTitle;
+	private int iCardNoRow, iCardNoColumn, iNameRow, iNameColumn, iSexRow, iSexColumn, iFolkRow, iFolkColumn, iBirthdayRow, iBirthdayColumn,
+		iAddressRow, iAddressColumn, iNewAddressRow, iNewAddressColumn, iIssueOrganRow, iIssueOrganColumn, iBeginDateRow, iBeginDateColumn,
+		iEndDateRow, iEndDateColumn, iPhotoRow, iPhotoColumn;
+	private boolean bCardNoExport, bNameExport, bSexExport, bFolkExport, bBirthdayExport, bAddressExport,
+		bNewAddressExport, bIssueOrganExport, bBeginDateExport, bEndDateExport, bPhotoExport;
 	/**
 	 * Create the panel.
 	 */
 	public ModelSettingPanel() {
-		setLayout(new GridLayout(5, 11, 3, 3));
-		JButton btnNewButton = new JButton("\u4FDD\u5B58");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("row   :" + rowIndexMap.get(nameRowComboBox.getSelectedItem()));
-				System.out.println("column:" + columnIndexMap.get(nameColumnComboBox.getSelectedItem()));
+		setLayout(new GridLayout(6, 12, 3, 3));
+		
+		writeTypeComboBox = new JComboBox();
+		writeTypeComboBox.setModel(new DefaultComboBoxModel(new String[] {"\u5217\u8868", "\u8BE6\u60C5"}));
+		writeTypeComboBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					String sWriteType = (String) writeTypeComboBox.getSelectedItem();
+					switchWriteType(sWriteType);
+				}
+				
 			}
 		});
-		add(btnNewButton);
+		add(writeTypeComboBox);
 		
 		JLabel nameLabel = new JLabel("\u59D3\u540D");
 		add(nameLabel);
@@ -95,6 +151,9 @@ public class ModelSettingPanel extends JPanel {
 		
 		JLabel endLabel = new JLabel("\u6709\u6548\u671F\u6B62");
 		add(endLabel);
+		
+		photoLabel = new JLabel("\u7167\u7247");
+		add(photoLabel);
 		
 		JLabel label_title = new JLabel("\u8868\u5934\u540D");
 		add(label_title);
@@ -149,6 +208,11 @@ public class ModelSettingPanel extends JPanel {
 		endTitleTextField.setColumns(10);
 		add(endTitleTextField);
 		
+		photoTitleTextField = new JTextField();
+		photoTitleTextField.setText("\u7167\u7247");
+		photoTitleTextField.setColumns(10);
+		add(photoTitleTextField);
+		
 		JLabel label_row = new JLabel("\u586B\u5145\u884C\u53F7");
 		add(label_row);
 		
@@ -192,15 +256,59 @@ public class ModelSettingPanel extends JPanel {
 		issueOrganRowComboBox.setSelectedIndex(3);
 		add(issueOrganRowComboBox);
 		
-		begnRowComboBox = new JComboBox();
-		setRowComboxItem(begnRowComboBox);
-		begnRowComboBox.setSelectedIndex(3);
-		add(begnRowComboBox);
+		beginRowComboBox = new JComboBox();
+		setRowComboxItem(beginRowComboBox);
+		beginRowComboBox.setSelectedIndex(3);
+		add(beginRowComboBox);
 		
 		endRowComboBox = new JComboBox();
 		setRowComboxItem(endRowComboBox);
 		endRowComboBox.setSelectedIndex(3);
 		add(endRowComboBox);
+		
+		photoRowComboBox = new JComboBox();
+		setRowComboxItem(photoRowComboBox);
+		photoRowComboBox.setSelectedIndex(3);
+		add(photoRowComboBox);
+		
+		label_startline = new JLabel("\u8D77\u59CB\u884C\u53F7");
+		add(label_startline);
+		
+		startLineComboBox = new JComboBox();
+		setRowComboxItem(startLineComboBox);
+		add(startLineComboBox);
+		
+		label_1 = new JLabel("");
+		add(label_1);
+		
+		label_isTitle = new JLabel("\u662F\u5426\u5BFC\u8868\u5934");
+		add(label_isTitle);
+		
+		isTtitleCheckBox = new JCheckBox("");
+		isTtitleCheckBox.setSelected(true);
+		isTtitleCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
+		add(isTtitleCheckBox);
+		
+		label_3 = new JLabel("");
+		add(label_3);
+		
+		label_4 = new JLabel("");
+		add(label_4);
+		
+		label_5 = new JLabel("");
+		add(label_5);
+		
+		label_6 = new JLabel("");
+		add(label_6);
+		
+		label_7 = new JLabel("");
+		add(label_7);
+		
+		label_2 = new JLabel("");
+		add(label_2);
+		
+		label_8 = new JLabel("");
+		add(label_8);
 		
 		JLabel label_column = new JLabel("\u586B\u5145\u5217\u53F7");
 		add(label_column);
@@ -255,49 +363,59 @@ public class ModelSettingPanel extends JPanel {
 		endColumnComboBox.setSelectedIndex(3);
 		add(endColumnComboBox);
 		
+		photoColumnComboBox = new JComboBox();
+		setColumnComboxItem(photoColumnComboBox);
+		photoColumnComboBox.setSelectedIndex(3);
+		add(photoColumnComboBox);
+		
 		JLabel label_isexport = new JLabel("\u662F\u5426\u5BFC\u51FA");
 		add(label_isexport);
 		
-		JCheckBox nameExportCheckBox = new JCheckBox("");
+		nameExportCheckBox = new JCheckBox("");
 		nameExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(nameExportCheckBox);
 		
-		JCheckBox cardNoExportCheckBox = new JCheckBox("");
+		cardNoExportCheckBox = new JCheckBox("");
 		cardNoExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(cardNoExportCheckBox);
 		
-		JCheckBox sexExportCheckBox = new JCheckBox("");
+		sexExportCheckBox = new JCheckBox("");
 		sexExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(sexExportCheckBox);
 		
-		JCheckBox folkExportCheckBox = new JCheckBox("");
+		folkExportCheckBox = new JCheckBox("");
 		folkExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(folkExportCheckBox);
 		
-		JCheckBox birtthdayExportCheckBox = new JCheckBox("");
-		birtthdayExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
-		add(birtthdayExportCheckBox);
+		birthdayExportCheckBox = new JCheckBox("");
+		birthdayExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
+		add(birthdayExportCheckBox);
 		
-		JCheckBox addressExportCheckBox = new JCheckBox("");
+		addressExportCheckBox = new JCheckBox("");
 		addressExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(addressExportCheckBox);
 		
-		JCheckBox newAddressExportCheckBox = new JCheckBox("");
+		newAddressExportCheckBox = new JCheckBox("");
 		newAddressExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(newAddressExportCheckBox);
 		
-		JCheckBox issueOrganExportCheckBox = new JCheckBox("");
+		issueOrganExportCheckBox = new JCheckBox("");
 		issueOrganExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(issueOrganExportCheckBox);
 		
-		JCheckBox beginExportCheckBox = new JCheckBox("");
+		beginExportCheckBox = new JCheckBox("");
 		beginExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(beginExportCheckBox);
 		
-		JCheckBox endExportCheckBox = new JCheckBox("");
+		endExportCheckBox = new JCheckBox("");
 		endExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(endExportCheckBox);
+		
+		photoExportCheckBox = new JCheckBox("");
+		photoExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
+		add(photoExportCheckBox);
 
+		switchWriteType((String) writeTypeComboBox.getSelectedItem());
 	}
 
 	private void setColumnComboxItem(JComboBox comboBox) {  
@@ -341,6 +459,79 @@ public class ModelSettingPanel extends JPanel {
 	     }
 	}
 
+	public void fillData(Connection conn, String sID) {
+		ResultSet rs = null;
+		Statement stat;
+		String sql = "select * from ModelInfo where id = '" + sID + "'";
+		try {
+			stat = conn.createStatement();
+			rs = stat.executeQuery(sql);
+			if (rs.next()) {
+				writeTypeComboBox.setSelectedItem(rs.getString("WriteType"));
+				startLineComboBox.setSelectedIndex(rs.getInt("StartLine"));
+				isTtitleCheckBox.setSelected(rs.getBoolean("ExportTitle"));
+				//居民身份证号
+				cardNoTitleTextField.setText(rs.getString("CardNoTitle"));
+				cardNoRowComboBox.setSelectedIndex(rs.getInt("CardNoRow"));
+				cardNoColumnComboBox.setSelectedIndex(rs.getInt("CardNoColumn"));
+				cardNoExportCheckBox.setSelected(rs.getBoolean("CardNoExport"));
+				//姓名
+				nameTitleTextField.setText(rs.getString("nameTitle"));
+				nameRowComboBox.setSelectedIndex(rs.getInt("nameRow"));
+				nameColumnComboBox.setSelectedIndex(rs.getInt("nameColumn"));
+				nameExportCheckBox.setSelected(rs.getBoolean("nameExport"));
+				//性别
+				sexTitleTextField.setText(rs.getString("sexTitle"));
+				sexRowComboBox.setSelectedIndex(rs.getInt("sexRow"));
+				sexColumnComboBox.setSelectedIndex(rs.getInt("sexColumn"));
+				sexExportCheckBox.setSelected(rs.getBoolean("sexExport"));
+				//民族
+				folkTitleTextField.setText(rs.getString("folkTitle"));
+				folkRowComboBox.setSelectedIndex(rs.getInt("folkRow"));
+				folkColumnComboBox.setSelectedIndex(rs.getInt("folkColumn"));
+				folkExportCheckBox.setSelected(rs.getBoolean("folkExport"));
+				//出生日期
+				birthdayTitleTextField.setText(rs.getString("birthdayTitle"));
+				birthdayRowComboBox.setSelectedIndex(rs.getInt("birthdayRow"));
+				birthdayColumnComboBox.setSelectedIndex(rs.getInt("birthdayColumn"));
+				birthdayExportCheckBox.setSelected(rs.getBoolean("birthdayExport"));
+				//地址
+				addressTitleTextField.setText(rs.getString("addressTitle"));
+				addressRowComboBox.setSelectedIndex(rs.getInt("addressRow"));
+				addressColumnComboBox.setSelectedIndex(rs.getInt("addressColumn"));
+				addressExportCheckBox.setSelected(rs.getBoolean("addressExport"));
+				//新地址
+				newAddressTitleTextField.setText(rs.getString("newAddressTitle"));
+				newAddressRowComboBox.setSelectedIndex(rs.getInt("newAddressRow"));
+				newAddressColumnComboBox.setSelectedIndex(rs.getInt("newAddressColumn"));
+				newAddressExportCheckBox.setSelected(rs.getBoolean("newAddressExport"));
+				//签发机构
+				issueOrganTitleTextField.setText(rs.getString("issueOrganTitle"));
+				issueOrganRowComboBox.setSelectedIndex(rs.getInt("issueOrganRow"));
+				issueOrganColumnComboBox.setSelectedIndex(rs.getInt("issueOrganColumn"));
+				issueOrganExportCheckBox.setSelected(rs.getBoolean("issueOrganExport"));
+				//有效期起
+				beginTitleTextField.setText(rs.getString("beginDateTitle"));
+				beginRowComboBox.setSelectedIndex(rs.getInt("beginDateRow"));
+				beginColumnComboBox.setSelectedIndex(rs.getInt("beginDateColumn"));
+				beginExportCheckBox.setSelected(rs.getBoolean("beginDateExport"));
+				//有效期止
+				endTitleTextField.setText(rs.getString("endDateTitle"));
+				endRowComboBox.setSelectedIndex(rs.getInt("endDateRow"));
+				endColumnComboBox.setSelectedIndex(rs.getInt("endDateColumn"));
+				endExportCheckBox.setSelected(rs.getBoolean("endDateExport"));
+				//照片
+				photoTitleTextField.setText(rs.getString("photoTitle"));
+				photoRowComboBox.setSelectedIndex(rs.getInt("photoRow"));
+				photoColumnComboBox.setSelectedIndex(rs.getInt("photoColumn"));
+				photoExportCheckBox.setSelected(rs.getBoolean("photoExport"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	private void setRowComboxItem(JComboBox comboBox) {  
 	     rowIndexMap = new HashMap();
 	     for (int i = 0; i < 40; i ++) {
@@ -350,5 +541,41 @@ public class ModelSettingPanel extends JPanel {
 	     while (e.hasNext()) {
 	    	 comboBox.addItem(e.next());
 	     }
+	}
+	
+	private void switchWriteType(String writeType) {
+		if ("详情".equals(writeType)) {
+			//不可用
+			startLineComboBox.setEnabled(false);
+			isTtitleCheckBox.setEnabled(false);
+			//可用
+			nameRowComboBox.setEnabled(true);
+			cardNoRowComboBox.setEnabled(true);
+			sexRowComboBox.setEnabled(true);
+			folkRowComboBox.setEnabled(true);
+			birthdayRowComboBox.setEnabled(true);
+			addressRowComboBox.setEnabled(true);
+			newAddressRowComboBox.setEnabled(true);
+			issueOrganRowComboBox.setEnabled(true);
+			beginRowComboBox.setEnabled(true);
+			endRowComboBox.setEnabled(true);
+			photoRowComboBox.setEnabled(true);
+		} else {
+			//可用
+			startLineComboBox.setEnabled(true);
+			isTtitleCheckBox.setEnabled(true);
+			//不可用
+			nameRowComboBox.setEnabled(false);
+			cardNoRowComboBox.setEnabled(false);
+			sexRowComboBox.setEnabled(false);
+			folkRowComboBox.setEnabled(false);
+			birthdayRowComboBox.setEnabled(false);
+			addressRowComboBox.setEnabled(false);
+			newAddressRowComboBox.setEnabled(false);
+			issueOrganRowComboBox.setEnabled(false);
+			beginRowComboBox.setEnabled(false);
+			endRowComboBox.setEnabled(false);
+			photoRowComboBox.setEnabled(false);
+		}
 	}
 }

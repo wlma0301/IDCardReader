@@ -6,6 +6,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -14,8 +17,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import com.wlma.dao.DBConnection;
 
@@ -30,9 +36,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 import java.awt.GridLayout;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -45,8 +54,11 @@ public class SettingUI extends JFrame {
 	private Statement stat;
 
 	private JPanel contentPane;
+	private JList listExcelModel;
+	private ModelSettingPanel modelSettingPanel;
 
-	private DefaultListModel<String> listModel = new DefaultListModel<String>();
+//	private DefaultListModel<String> listModel = new DefaultListModel<String>();
+	private Map excelListMap = null;
 	/**
 	 * Launch the application.
 	 */
@@ -67,6 +79,23 @@ public class SettingUI extends JFrame {
 	 * Create the frame.
 	 */
 	public SettingUI() {
+		try {
+			//当前系统风格
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (InstantiationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		init();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 950, 455);
 		contentPane = new JPanel();
@@ -87,54 +116,10 @@ public class SettingUI extends JFrame {
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setRightComponent(splitPane_1);
 		
-		JPanel modelSettingPanel = new ModelSettingPanel();
+		modelSettingPanel = new ModelSettingPanel();
 		modelSettingPanel.setPreferredSize(new Dimension(600, 120));
 		splitPane_1.setLeftComponent(modelSettingPanel);
-//		JPanel panel_1 = new JPanel();
-//		splitPane_1.setLeftComponent(panel_1);
-//		panel_1.setLayout(new GridLayout(4, 11, 2, 2));
-//		
-//		JLabel lblNewLabel = new JLabel("New label");
-//		panel_1.add(lblNewLabel);
-//		
-//		JLabel lblNewLabel_2 = new JLabel("New label");
-//		panel_1.add(lblNewLabel_2);
-//		
-//		JLabel label_1 = new JLabel("New label");
-//		panel_1.add(label_1);
-//		
-//		JLabel label = new JLabel("New label");
-//		panel_1.add(label);
-//		
-//		JLabel label_7 = new JLabel("New label");
-//		panel_1.add(label_7);
-//		
-//		JLabel label_6 = new JLabel("New label");
-//		panel_1.add(label_6);
-//		
-//		JLabel label_5 = new JLabel("New label");
-//		panel_1.add(label_5);
-//		
-//		JLabel label_4 = new JLabel("New label");
-//		panel_1.add(label_4);
-//		
-//		JLabel label_3 = new JLabel("New label");
-//		panel_1.add(label_3);
-//		
-//		JLabel label_2 = new JLabel("New label");
-//		panel_1.add(label_2);
-//		
-//		JLabel lblNewLabel_3 = new JLabel("New label");
-//		panel_1.add(lblNewLabel_3);
-//		
-//		JLabel lblNewLabel_1 = new JLabel("New label");
-//		panel_1.add(lblNewLabel_1);
-//		
-//		JLabel lblNewLabel_4 = new JLabel("New label");
-//		panel_1.add(lblNewLabel_4);
-//		
-//		JLabel lblNewLabel_5 = new JLabel("New label");
-//		panel_1.add(lblNewLabel_5);
+
 		
 		JPanel panel = new JPanel();
 		panel.setToolTipText("\u9009\u62E9Excel\u6A21\u7248");
@@ -142,9 +127,16 @@ public class SettingUI extends JFrame {
 		splitPane.setLeftComponent(panel);
 		panel.setLayout(new BorderLayout(5, 5));
 		
-		JList listExcelModel = new JList(listModel);
+		listExcelModel = new JList();
+		setExcelListItem(listExcelModel);
 		listExcelModel.getSize().setSize(100, 599);
 		listExcelModel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "\u6A21\u7248\u5217\u8868\uFF1A", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		listExcelModel.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				excelList_valueChanged(e);
+			}
+		});
 		panel.add(listExcelModel, BorderLayout.CENTER);
 		
 		JPanel panel_excelBtn = new JPanel();
@@ -164,24 +156,54 @@ public class SettingUI extends JFrame {
 		
 		JLabel labelStatus = new JLabel("\u8FD9\u4E2A\u662F\u72B6\u6001\u680F");
 		toolBarFoot.add(labelStatus);
-		init();
 	}
 
+	private void setExcelListItem(JList jList) {  
+		excelListMap = new HashMap();
+		DefaultListModel<String> listModel = new DefaultListModel<String>();
+		String sql = "";
+		String sModelName = "";
+		String sID = "";
+		sql = "select * from ModelInfo where ModelType like 'excel%'";
+		try {
+			rs = stat.executeQuery(sql);
+			while (rs.next()) {
+				sID = rs.getString("ID");
+				sModelName = rs.getString("ModelName");
+				excelListMap.put(sID + sModelName, sID);
+				System.out.println(sID);
+				listModel.addElement(sID + sModelName);
+				//listModel.addElement(sModelName);
+			}
+			rs.close();
+			stat.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//	     Iterator<Integer> e = excelListMap.keySet().iterator();
+//	     while (e.hasNext()) {
+//	    	 jList.addElement(e.next());
+//	     }
+	     jList.setModel(listModel);
+	}
+	
 	private void init() {
 		conn = new DBConnection().getConnection();
 		String sql = "";
 		String sModelName = "";
 		try {
 			stat = conn.createStatement();
-			sql = "select * from ModelInfo where ModelType like 'excel%'";
-			rs = stat.executeQuery(sql);
-			while (rs.next()) {
-				sModelName = rs.getString("ModelName");
-				listModel.addElement(sModelName);
-			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private void excelList_valueChanged(ListSelectionEvent e) {
+		JOptionPane.showMessageDialog(this,
+				"模版：" + listExcelModel.getSelectedValue() + " " + excelListMap.get(listExcelModel.getSelectedValue()),
+				null, JOptionPane.INFORMATION_MESSAGE);
+		modelSettingPanel.fillData(conn, (String) excelListMap.get(listExcelModel.getSelectedValue()));
 	}
 }
