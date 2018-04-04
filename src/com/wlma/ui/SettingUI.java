@@ -24,6 +24,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.wlma.dao.DBConnection;
+import com.wlma.dao.DBConnectionFactory;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -97,7 +98,7 @@ public class SettingUI extends JFrame {
 		}
 		init();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 950, 455);
+		setBounds(50, 50, 1000, 618);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -117,8 +118,12 @@ public class SettingUI extends JFrame {
 		splitPane.setRightComponent(splitPane_1);
 		
 		modelSettingPanel = new ModelSettingPanel();
-		modelSettingPanel.setPreferredSize(new Dimension(600, 120));
+		modelSettingPanel.setPreferredSize(new Dimension(750, 120));
 		splitPane_1.setLeftComponent(modelSettingPanel);
+		
+		ExcelTablePanel tablePanel = new ExcelTablePanel();
+		//tablePanel.setPreferredSize(new Dimension(600, 600));
+		splitPane_1.setRightComponent(tablePanel);
 
 		
 		JPanel panel = new JPanel();
@@ -129,15 +134,20 @@ public class SettingUI extends JFrame {
 		
 		listExcelModel = new JList();
 		setExcelListItem(listExcelModel);
-		listExcelModel.getSize().setSize(100, 599);
+		//listExcelModel.getSize().setSize(100, 599);
 		listExcelModel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "\u6A21\u7248\u5217\u8868\uFF1A", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		listExcelModel.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				excelList_valueChanged(e);
+				if (e.getValueIsAdjusting()) {
+					excelList_valueChanged();
+				}
 			}
 		});
 		panel.add(listExcelModel, BorderLayout.CENTER);
+		//默认选中第一行
+		listExcelModel.setSelectedIndex(0);
+		excelList_valueChanged();
 		
 		JPanel panel_excelBtn = new JPanel();
 		panel.add(panel_excelBtn, BorderLayout.SOUTH);
@@ -171,9 +181,7 @@ public class SettingUI extends JFrame {
 				sID = rs.getString("ID");
 				sModelName = rs.getString("ModelName");
 				excelListMap.put(sID + sModelName, sID);
-				System.out.println(sID);
 				listModel.addElement(sID + sModelName);
-				//listModel.addElement(sModelName);
 			}
 			rs.close();
 			stat.close();
@@ -181,29 +189,20 @@ public class SettingUI extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//	     Iterator<Integer> e = excelListMap.keySet().iterator();
-//	     while (e.hasNext()) {
-//	    	 jList.addElement(e.next());
-//	     }
 	     jList.setModel(listModel);
 	}
 	
 	private void init() {
-		conn = new DBConnection().getConnection();
-		String sql = "";
-		String sModelName = "";
 		try {
+			conn = DBConnectionFactory.getConnection(); //获取数据库连接
 			stat = conn.createStatement();
-		} catch (SQLException e) {
+		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
 	}
 
-	private void excelList_valueChanged(ListSelectionEvent e) {
-		JOptionPane.showMessageDialog(this,
-				"模版：" + listExcelModel.getSelectedValue() + " " + excelListMap.get(listExcelModel.getSelectedValue()),
-				null, JOptionPane.INFORMATION_MESSAGE);
+	private void excelList_valueChanged() {
 		modelSettingPanel.fillData(conn, (String) excelListMap.get(listExcelModel.getSelectedValue()));
 	}
 }

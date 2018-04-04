@@ -16,7 +16,7 @@ public class DBConnection {
     private final String password = "";
     private Connection conn = null;
 
-    public DBConnection() {
+    private DBConnection() {
 		try {
 			url = "jdbc:Access://" + classPath + database;
 			Class.forName(driver);	//¼ÓÔØÇý¶¯
@@ -34,6 +34,14 @@ public class DBConnection {
 		return conn;
 	}
 
+	private static class SingletonHolder {
+		private static DBConnection instance = new DBConnection();
+	}
+
+	public static DBConnection getInstance() {
+		return SingletonHolder.instance;
+	}
+	
 	private Statement createStatement() throws SQLException {
 		return conn.createStatement();
 	}

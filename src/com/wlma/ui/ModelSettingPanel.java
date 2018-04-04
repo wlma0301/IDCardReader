@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -15,11 +16,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
+
+import com.wlma.dao.DBConnection;
+
 import javax.swing.JToggleButton;
 import javax.swing.JScrollBar;
 import javax.swing.DefaultComboBoxModel;
@@ -62,23 +67,14 @@ public class ModelSettingPanel extends JPanel {
 	private JComboBox photoColumnComboBox;
 
 
-	Map columnIndexMap = null;
-	Map rowIndexMap = null;
-	private JComboBox writeTypeComboBox;
-	private JLabel label_1;
-	private JLabel label_isTitle;
-	private JLabel label_3;
-	private JLabel label_4;
-	private JLabel label_5;
-	private JLabel label_6;
-	private JLabel label_7;
-	private JLabel label_2;
-	private JLabel label_8;
-	private JLabel photoLabel;
+	private Map columnIndexMap = null;
+	private Map rowIndexMap = null;
+	private Connection conn = null;
+	private String sID = null;
 	
-	private JLabel label_startline;
-	private JComboBox startLineComboBox;
-	private JCheckBox isTtitleCheckBox;
+	
+	private JComboBox writeTypeComboBox;
+	private JLabel photoLabel;
 
 	private JCheckBox nameExportCheckBox;
 	private JCheckBox cardNoExportCheckBox;
@@ -102,11 +98,23 @@ public class ModelSettingPanel extends JPanel {
 		iEndDateRow, iEndDateColumn, iPhotoRow, iPhotoColumn;
 	private boolean bCardNoExport, bNameExport, bSexExport, bFolkExport, bBirthdayExport, bAddressExport,
 		bNewAddressExport, bIssueOrganExport, bBeginDateExport, bEndDateExport, bPhotoExport;
+	private JLabel label;
+	private JComboBox startLineComboBox;
+	private JLabel label_1;
+	private JLabel label_2;
+	private JCheckBox isTtitleCheckBox;
+	private JLabel label_3;
+	private JLabel label_4;
+	private JLabel label_5;
+	private JLabel label_6;
+	private JLabel label_7;
+	private JLabel label_8;
+	private JButton saveButton;
 	/**
 	 * Create the panel.
 	 */
 	public ModelSettingPanel() {
-		setLayout(new GridLayout(6, 12, 3, 3));
+		setLayout(new GridLayout(6, 12, 5, 5));
 		
 		writeTypeComboBox = new JComboBox();
 		writeTypeComboBox.setModel(new DefaultComboBoxModel(new String[] {"\u5217\u8868", "\u8BE6\u60C5"}));
@@ -271,45 +279,6 @@ public class ModelSettingPanel extends JPanel {
 		photoRowComboBox.setSelectedIndex(3);
 		add(photoRowComboBox);
 		
-		label_startline = new JLabel("\u8D77\u59CB\u884C\u53F7");
-		add(label_startline);
-		
-		startLineComboBox = new JComboBox();
-		setRowComboxItem(startLineComboBox);
-		add(startLineComboBox);
-		
-		label_1 = new JLabel("");
-		add(label_1);
-		
-		label_isTitle = new JLabel("\u662F\u5426\u5BFC\u8868\u5934");
-		add(label_isTitle);
-		
-		isTtitleCheckBox = new JCheckBox("");
-		isTtitleCheckBox.setSelected(true);
-		isTtitleCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
-		add(isTtitleCheckBox);
-		
-		label_3 = new JLabel("");
-		add(label_3);
-		
-		label_4 = new JLabel("");
-		add(label_4);
-		
-		label_5 = new JLabel("");
-		add(label_5);
-		
-		label_6 = new JLabel("");
-		add(label_6);
-		
-		label_7 = new JLabel("");
-		add(label_7);
-		
-		label_2 = new JLabel("");
-		add(label_2);
-		
-		label_8 = new JLabel("");
-		add(label_8);
-		
 		JLabel label_column = new JLabel("\u586B\u5145\u5217\u53F7");
 		add(label_column);
 		
@@ -414,52 +383,58 @@ public class ModelSettingPanel extends JPanel {
 		photoExportCheckBox = new JCheckBox("");
 		photoExportCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		add(photoExportCheckBox);
+		
+		label = new JLabel("\u8D77\u59CB\u884C\u53F7");
+		add(label);
+		
+		startLineComboBox = new JComboBox();
+		setRowComboxItem(startLineComboBox);
+		add(startLineComboBox);
+		
+		label_1 = new JLabel("");
+		add(label_1);
+		
+		label_2 = new JLabel("\u662F\u5426\u5BFC\u8868\u5934");
+		add(label_2);
+		
+		isTtitleCheckBox = new JCheckBox("");
+		isTtitleCheckBox.setSelected(true);
+		isTtitleCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
+		add(isTtitleCheckBox);
+		
+		label_3 = new JLabel("");
+		add(label_3);
+		
+		label_4 = new JLabel("");
+		add(label_4);
+		
+		label_5 = new JLabel("");
+		add(label_5);
+		
+		label_6 = new JLabel("");
+		add(label_6);
+		
+		label_7 = new JLabel("");
+		add(label_7);
+		
+		saveButton = new JButton("\u4FDD\u5B58");
+		saveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveData();
+			}
+		});
+		add(saveButton);
+		
+		label_8 = new JLabel("");
+		add(label_8);
 
 		switchWriteType((String) writeTypeComboBox.getSelectedItem());
 	}
 
-	private void setColumnComboxItem(JComboBox comboBox) {  
-	     columnIndexMap = new HashMap();
-	     columnIndexMap.put("A", 0);
-	     columnIndexMap.put("B", 1);
-	     columnIndexMap.put("C", 2);
-	     columnIndexMap.put("D", 3);
-	     columnIndexMap.put("E", 4);
-	     columnIndexMap.put("F", 5);
-	     columnIndexMap.put("G", 6);
-	     columnIndexMap.put("H", 7);
-	     columnIndexMap.put("I", 8);
-	     columnIndexMap.put("J", 9);
-	     columnIndexMap.put("K", 10);
-	     columnIndexMap.put("L", 11);
-	     columnIndexMap.put("M", 12);
-	     columnIndexMap.put("N", 13);
-	     columnIndexMap.put("O", 14);
-	     columnIndexMap.put("P", 15);
-	     columnIndexMap.put("Q", 16);
-	     columnIndexMap.put("R", 17);
-	     columnIndexMap.put("S", 18);
-	     columnIndexMap.put("T", 19);
-	     columnIndexMap.put("U", 20);
-	     columnIndexMap.put("V", 21);
-	     columnIndexMap.put("W", 22);
-	     columnIndexMap.put("X", 23);
-	     columnIndexMap.put("Y", 24);
-	     columnIndexMap.put("Z", 25);
-	     columnIndexMap.put("AA", 26);
-	     columnIndexMap.put("AB", 27);
-	     columnIndexMap.put("AC", 28);
-	     columnIndexMap.put("AD", 29);
-	     columnIndexMap.put("AE", 30);
-	     columnIndexMap.put("AF", 31);
-	     columnIndexMap.put("AG", 32);
-	     Iterator<String> e = columnIndexMap.keySet().iterator();
-	     while (e.hasNext()) {
-	    	 comboBox.addItem(e.next());
-	     }
-	}
 
 	public void fillData(Connection conn, String sID) {
+		this.conn = conn;
+		this.sID = sID;
 		ResultSet rs = null;
 		Statement stat;
 		String sql = "select * from ModelInfo where id = '" + sID + "'";
@@ -526,12 +501,202 @@ public class ModelSettingPanel extends JPanel {
 				photoColumnComboBox.setSelectedIndex(rs.getInt("photoColumn"));
 				photoExportCheckBox.setSelected(rs.getBoolean("photoExport"));
 			}
+			rs.close();
+			stat.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
+	private void saveData() {
+		
+		sWriteType = (String) writeTypeComboBox.getSelectedItem();
+		iStartLine = startLineComboBox.getSelectedIndex();
+		bExportTitle = isTtitleCheckBox.isSelected();
+		//居民身份证号
+		sCardNoTitle = cardNoTitleTextField.getText().trim();
+		iCardNoRow = cardNoRowComboBox.getSelectedIndex();
+		iCardNoColumn = cardNoColumnComboBox.getSelectedIndex();
+		bCardNoExport = cardNoExportCheckBox.isSelected();
+		//姓名
+		sNameTitle = nameTitleTextField.getText().trim();
+		iNameRow = nameRowComboBox.getSelectedIndex();
+		iNameColumn = nameColumnComboBox.getSelectedIndex();
+		bNameExport = nameExportCheckBox.isSelected();
+		//性别
+		sSexTitle = sexTitleTextField.getText().trim();
+		iSexRow = sexRowComboBox.getSelectedIndex();
+		iSexColumn = sexColumnComboBox.getSelectedIndex();
+		bSexExport = sexExportCheckBox.isSelected();
+		//民族
+		sFolkTitle = folkTitleTextField.getText().trim();
+		iFolkRow = folkRowComboBox.getSelectedIndex();
+		iFolkColumn = folkColumnComboBox.getSelectedIndex();
+		bFolkExport = folkExportCheckBox.isSelected();
+		//出生日期
+		sBirthdayTitle = birthdayTitleTextField.getText().trim();
+		iBirthdayRow = birthdayRowComboBox.getSelectedIndex();
+		iBirthdayColumn = birthdayColumnComboBox.getSelectedIndex();
+		bBirthdayExport = birthdayExportCheckBox.isSelected();
+		//地址
+		sAddressTitle = addressTitleTextField.getText().trim();
+		iAddressRow = addressRowComboBox.getSelectedIndex();
+		iAddressColumn = addressColumnComboBox.getSelectedIndex();
+		bAddressExport = addressExportCheckBox.isSelected();
+		//新地址
+		sNewAddressTitle = newAddressTitleTextField.getText().trim();
+		iNewAddressRow = newAddressRowComboBox.getSelectedIndex();
+		iNewAddressColumn = newAddressColumnComboBox.getSelectedIndex();
+		bNewAddressExport = newAddressExportCheckBox.isSelected();
+		//签发机构
+		sIssueOrganTitle = issueOrganTitleTextField.getText().trim();
+		iIssueOrganRow = issueOrganRowComboBox.getSelectedIndex();
+		iIssueOrganColumn = issueOrganColumnComboBox.getSelectedIndex();
+		bIssueOrganExport = issueOrganExportCheckBox.isSelected();
+		//有效期起
+		sBeginDateTitle = beginTitleTextField.getText().trim();
+		iBeginDateRow = beginRowComboBox.getSelectedIndex();
+		iBeginDateColumn = beginColumnComboBox.getSelectedIndex();
+		bBeginDateExport = beginExportCheckBox.isSelected();
+		//有效期止
+		sEndDateTitle = endTitleTextField.getText().trim();
+		iEndDateRow = endRowComboBox.getSelectedIndex();
+		iEndDateColumn = endColumnComboBox.getSelectedIndex();
+		bEndDateExport = endExportCheckBox.isSelected();
+		//照片
+		sPhotoTitle = photoTitleTextField.getText().trim();
+		iPhotoRow = photoRowComboBox.getSelectedIndex();
+		iPhotoColumn = photoColumnComboBox.getSelectedIndex();
+		bPhotoExport = photoExportCheckBox.isSelected();
+		//
+		String pSql = " update ModelInfo" +
+						" set WriteType = ?, StartLine = ?, ExportTitle = ?," +
+						" CardNoTitle = ?, CardNoRow = ?, CardNoColumn = ?, CardNoExport = ?," +
+						" NameTitle = ?, NameRow = ?, NameColumn = ?, NameExport = ?," +
+						" SexTitle = ?, SexRow = ?, SexColumn = ?, SexExport = ?," +
+						" FolkTitle = ?, FolkRow = ?, FolkColumn = ?, FolkExport = ?," +
+						" BirthdayTitle = ?, BirthdayRow = ?, BirthdayColumn = ?, BirthdayExport = ?," +
+						" AddressTitle = ?, AddressRow = ?, AddressColumn = ?, AddressExport = ?," +
+						" NewAddressTitle = ?, NewAddressRow = ?, NewAddressColumn = ?, NewAddressExport = ?," +
+						" IssueOrganTitle = ?, IssueOrganRow = ?, IssueOrganColumn = ?, IssueOrganExport = ?," +
+						" BeginDateTitle = ?, BeginDateRow = ?, BeginDateColumn = ?, BeginDateExport = ?," +
+						" EndDateTitle = ?, EndDateRow = ?, EndDateColumn = ?, EndDateExport = ?," +
+						" PhotoTitle = ?, PhotoRow = ?, PhotoColumn = ?, PhotoExport = ?" +
+					" where ID = ?";
+		try {
+			PreparedStatement ps = conn.prepareStatement(pSql);
+			int count = 1;
+			ps.setString(count ++, sWriteType);
+			ps.setInt(count ++, iStartLine);
+			ps.setBoolean(count ++, bExportTitle);
+			
+			ps.setString(count ++, sCardNoTitle);
+			ps.setInt(count ++, iCardNoRow);
+			ps.setInt(count ++, iCardNoColumn);
+			ps.setBoolean(count ++, bCardNoExport);
+
+			ps.setString(count ++, sNameTitle);
+			ps.setInt(count ++, iNameRow);
+			ps.setInt(count ++, iNameColumn);
+			ps.setBoolean(count ++, bNameExport);
+
+			ps.setString(count ++, sSexTitle);
+			ps.setInt(count ++, iSexRow);
+			ps.setInt(count ++, iSexColumn);
+			ps.setBoolean(count ++, bSexExport);
+
+			ps.setString(count ++, sFolkTitle);
+			ps.setInt(count ++, iFolkRow);
+			ps.setInt(count ++, iFolkColumn);
+			ps.setBoolean(count ++, bFolkExport);
+
+			ps.setString(count ++, sBirthdayTitle);
+			ps.setInt(count ++, iBirthdayRow);
+			ps.setInt(count ++, iBirthdayColumn);
+			ps.setBoolean(count ++, bBirthdayExport);
+
+			ps.setString(count ++, sAddressTitle);
+			ps.setInt(count ++, iAddressRow);
+			ps.setInt(count ++, iAddressColumn);
+			ps.setBoolean(count ++, bAddressExport);
+
+			ps.setString(count ++, sNewAddressTitle);
+			ps.setInt(count ++, iNewAddressRow);
+			ps.setInt(count ++, iNewAddressColumn);
+			ps.setBoolean(count ++, bNewAddressExport);
+
+			ps.setString(count ++, sIssueOrganTitle);
+			ps.setInt(count ++, iIssueOrganRow);
+			ps.setInt(count ++, iIssueOrganColumn);
+			ps.setBoolean(count ++, bIssueOrganExport);
+
+			ps.setString(count ++, sBeginDateTitle);
+			ps.setInt(count ++, iBeginDateRow);
+			ps.setInt(count ++, iBeginDateColumn);
+			ps.setBoolean(count ++, bBeginDateExport);
+
+			ps.setString(count ++, sEndDateTitle);
+			ps.setInt(count ++, iEndDateRow);
+			ps.setInt(count ++, iEndDateColumn);
+			ps.setBoolean(count ++, bEndDateExport);
+
+			ps.setString(count ++, sPhotoTitle);
+			ps.setInt(count ++, iPhotoRow);
+			ps.setInt(count ++, iPhotoColumn);
+			ps.setBoolean(count ++, bPhotoExport);
+			
+			ps.setString(count ++, this.sID);
+			ps.execute();
+			JOptionPane.showMessageDialog(this, "配置保存成功" , null, JOptionPane.INFORMATION_MESSAGE);
+			ps.close();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(this, "配置保存失败，原因：" + e.getMessage() , null, JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
+	}
+	
+	private void setColumnComboxItem(JComboBox comboBox) {  
+	     columnIndexMap = new HashMap();
+	     columnIndexMap.put("A", 0);
+	     columnIndexMap.put("B", 1);
+	     columnIndexMap.put("C", 2);
+	     columnIndexMap.put("D", 3);
+	     columnIndexMap.put("E", 4);
+	     columnIndexMap.put("F", 5);
+	     columnIndexMap.put("G", 6);
+	     columnIndexMap.put("H", 7);
+	     columnIndexMap.put("I", 8);
+	     columnIndexMap.put("J", 9);
+	     columnIndexMap.put("K", 10);
+	     columnIndexMap.put("L", 11);
+	     columnIndexMap.put("M", 12);
+	     columnIndexMap.put("N", 13);
+	     columnIndexMap.put("O", 14);
+	     columnIndexMap.put("P", 15);
+	     columnIndexMap.put("Q", 16);
+	     columnIndexMap.put("R", 17);
+	     columnIndexMap.put("S", 18);
+	     columnIndexMap.put("T", 19);
+	     columnIndexMap.put("U", 20);
+	     columnIndexMap.put("V", 21);
+	     columnIndexMap.put("W", 22);
+	     columnIndexMap.put("X", 23);
+	     columnIndexMap.put("Y", 24);
+	     columnIndexMap.put("Z", 25);
+	     columnIndexMap.put("AA", 26);
+	     columnIndexMap.put("AB", 27);
+	     columnIndexMap.put("AC", 28);
+	     columnIndexMap.put("AD", 29);
+	     columnIndexMap.put("AE", 30);
+	     columnIndexMap.put("AF", 31);
+	     columnIndexMap.put("AG", 32);
+	     Iterator<String> e = columnIndexMap.keySet().iterator();
+	     while (e.hasNext()) {
+	    	 comboBox.addItem(e.next());
+	     }
+	}
+
 	private void setRowComboxItem(JComboBox comboBox) {  
 	     rowIndexMap = new HashMap();
 	     for (int i = 0; i < 40; i ++) {
