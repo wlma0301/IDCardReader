@@ -60,6 +60,7 @@ public class SettingUI extends JFrame {
 
 //	private DefaultListModel<String> listModel = new DefaultListModel<String>();
 	private Map excelListMap = null;
+	String sID = "";
 	/**
 	 * Launch the application.
 	 */
@@ -123,6 +124,7 @@ public class SettingUI extends JFrame {
 		
 		ExcelTablePanel tablePanel = new ExcelTablePanel();
 		//tablePanel.setPreferredSize(new Dimension(600, 600));
+		tablePanel.fillData(conn, sID);
 		splitPane_1.setRightComponent(tablePanel);
 
 		
@@ -173,7 +175,6 @@ public class SettingUI extends JFrame {
 		DefaultListModel<String> listModel = new DefaultListModel<String>();
 		String sql = "";
 		String sModelName = "";
-		String sID = "";
 		sql = "select * from ModelInfo where ModelType like 'excel%'";
 		try {
 			rs = stat.executeQuery(sql);
@@ -203,6 +204,7 @@ public class SettingUI extends JFrame {
 	}
 
 	private void excelList_valueChanged() {
-		modelSettingPanel.fillData(conn, (String) excelListMap.get(listExcelModel.getSelectedValue()));
+		sID = (String) excelListMap.get(listExcelModel.getSelectedValue());
+		modelSettingPanel.fillData(conn, sID);
 	}
 }

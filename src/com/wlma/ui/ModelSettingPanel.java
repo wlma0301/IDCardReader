@@ -395,6 +395,7 @@ public class ModelSettingPanel extends JPanel {
 		add(label_1);
 		
 		label_2 = new JLabel("\u662F\u5426\u5BFC\u8868\u5934");
+		label_2.setToolTipText("\u662F\u5426\u5BFC\u8868\u5934");
 		add(label_2);
 		
 		isTtitleCheckBox = new JCheckBox("");
@@ -418,6 +419,7 @@ public class ModelSettingPanel extends JPanel {
 		add(label_7);
 		
 		saveButton = new JButton("\u4FDD\u5B58");
+		saveButton.setToolTipText("\u4FDD\u5B58\u8BBE\u7F6E");
 		saveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				saveData();
