@@ -11,9 +11,12 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import com.wlma.dao.DBConnectionFactory;
+import com.wlma.export.excel.XRow;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -48,6 +51,7 @@ public class ExcelTablePanel extends JPanel {
 	private boolean bCardNoExport, bNameExport, bSexExport, bFolkExport, bBirthdayExport, bAddressExport,
 		bNewAddressExport, bIssueOrganExport, bBeginDateExport, bEndDateExport, bPhotoExport;
 
+	private Map<String, Object> settingMap = null;
 	private Vector<Vector<Object>> tableData = new Vector<>();
 	private Map<String, InputStream> photo = new HashMap<String, InputStream>();
 	/**
@@ -64,8 +68,14 @@ public class ExcelTablePanel extends JPanel {
 		JButton btnNewButton = new JButton("New button");
 		panel.add(btnNewButton);
 		
-		JButton btnNewButton_1 = new JButton("New button");
-		panel.add(btnNewButton_1);
+		JButton exportButton = new JButton("导出数据");
+		exportButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				exportData();
+			}
+		});
+		panel.add(exportButton);
+		
 		
 		JButton btnNewButton_2 = new JButton("New button");
 		panel.add(btnNewButton_2);
@@ -125,25 +135,27 @@ public class ExcelTablePanel extends JPanel {
 		} //获取数据库连接
 //		PreparedStatement ps = conn.prepareStatement(pSql);
 	}
-	public void fillData(Connection conn, String sID) {
+	public void fillData(Connection conn, String sID, Map settingMap) {
 		this.conn = conn;
+		this.settingMap = settingMap;
 		String sSqlCard = "select * from CardInfo where 1=1";
-		String sSqlSetting = "select * from ModelInfo where id = '" + sID + "'";
+//		String sSqlSetting = "select * from ModelInfo where id = '" + sID + "'";
 		ResultSet rsCard = null;
-		ResultSet rsSetting = null;
+//		ResultSet rsSetting = null;
 		try {
 			PreparedStatement psCard = conn.prepareStatement(sSqlCard);
 //			PreparedStatement psSetting = conn.prepareStatement(sSqlSetting);
 			rsCard = psCard.executeQuery();
 //			rsSetting = psSetting.executeQuery();
 //			if (rsSetting.next()) {
+				
 //			}
 			while (rsCard.next()) {
 				Vector<Object> line = new Vector<>();
 				String cardNo = rsCard.getString("cardNo");
-				//InputStream in = rs.getBinaryStream("Photo");
+				InputStream in = rsCard.getBinaryStream("Photo");
 				System.out.println(cardNo);
-				//System.out.println(in);
+				System.out.println(in);
 				line.add(false);
 				line.add(rsCard.getString("cardName"));
 				line.add(cardNo);
@@ -157,7 +169,7 @@ public class ExcelTablePanel extends JPanel {
 				line.add(rsCard.getString("availabilityEnd"));
 				line.add(rsCard.getString("controlNum"));
 				//
-				//photo.put(cardNo, in);
+				photo.put(cardNo, in);
 				//
 				tableData.add(line);
 				
@@ -167,6 +179,15 @@ public class ExcelTablePanel extends JPanel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void exportData() {
+		for (int i = 0; i < table.getRowCount(); i++) {
+			
+		}
+//		XRow[] xRowList = xRows.values().toArray(new XRow[0]);
+		String filePath = "C:/币乎.docx";
+		//Excel2003Write excelWrite = new Excel2003Write(filePath, xRowList);
 	}
     class MyTableModel extends DefaultTableModel {
         
