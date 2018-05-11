@@ -57,6 +57,7 @@ public class SettingUI extends JFrame {
 	private JPanel contentPane;
 	private JList listExcelModel;
 	private ModelSettingPanel modelSettingPanel;
+	private ExcelTablePanel tablePanel;
 
 //	private DefaultListModel<String> listModel = new DefaultListModel<String>();
 	private Map excelListMap = null;
@@ -123,8 +124,7 @@ public class SettingUI extends JFrame {
 		modelSettingPanel.setPreferredSize(new Dimension(750, 120));
 		splitPane_1.setLeftComponent(modelSettingPanel);
 		
-		ExcelTablePanel tablePanel = new ExcelTablePanel();
-		//tablePanel.setPreferredSize(new Dimension(600, 600));
+		tablePanel = new ExcelTablePanel();
 		tablePanel.fillData(conn, sID, settingMap);
 		splitPane_1.setRightComponent(tablePanel);
 
@@ -219,57 +219,57 @@ public class SettingUI extends JFrame {
 				settingMap.put("ExportTitle", rs.getBoolean("ExportTitle"));
 				//居民身份证号
 				settingMap.put("WriteType", rs.getString("CardNoTitle"));
-				settingMap.put("CardNoRow", rs.getString("CardNoRow"));
+				settingMap.put("CardNoRow", rs.getInt("CardNoRow"));
 				settingMap.put("CardNoColumn", rs.getInt("CardNoColumn"));
 				settingMap.put("CardNoExport", rs.getBoolean("CardNoExport"));
 				//姓名
 				settingMap.put("nameTitle", rs.getString("nameTitle"));
-				settingMap.put("nameRow", rs.getString("nameRow"));
+				settingMap.put("nameRow", rs.getInt("nameRow"));
 				settingMap.put("nameColumn", rs.getInt("nameColumn"));
 				settingMap.put("nameExport", rs.getBoolean("nameExport"));
 				//性别
 				settingMap.put("sexTitle", rs.getString("sexTitle"));
-				settingMap.put("sexRow", rs.getString("sexRow"));
+				settingMap.put("sexRow", rs.getInt("sexRow"));
 				settingMap.put("sexColumn", rs.getInt("sexColumn"));
 				settingMap.put("sexExport", rs.getBoolean("sexExport"));
 				//民族
 				settingMap.put("folkTitle", rs.getString("folkTitle"));
-				settingMap.put("folkRow", rs.getString("folkRow"));
+				settingMap.put("folkRow", rs.getInt("folkRow"));
 				settingMap.put("folkColumn", rs.getInt("folkColumn"));
 				settingMap.put("folkExport", rs.getBoolean("folkExport"));
 				//出生日期
 				settingMap.put("birthdayTitle", rs.getString("birthdayTitle"));
-				settingMap.put("birthdayRow", rs.getString("birthdayRow"));
+				settingMap.put("birthdayRow", rs.getInt("birthdayRow"));
 				settingMap.put("birthdayColumn", rs.getInt("birthdayColumn"));
 				settingMap.put("birthdayExport", rs.getBoolean("birthdayExport"));
 				//地址
 				settingMap.put("addressTitle", rs.getString("addressTitle"));
-				settingMap.put("addressRow", rs.getString("addressRow"));
+				settingMap.put("addressRow", rs.getInt("addressRow"));
 				settingMap.put("addressColumn", rs.getInt("addressColumn"));
 				settingMap.put("addressExport", rs.getBoolean("addressExport"));
 				//新地址
 				settingMap.put("newAddressTitle", rs.getString("newAddressTitle"));
-				settingMap.put("newAddressRow", rs.getString("newAddressRow"));
+				settingMap.put("newAddressRow", rs.getInt("newAddressRow"));
 				settingMap.put("newAddressColumn", rs.getInt("newAddressColumn"));
 				settingMap.put("newAddressExport", rs.getBoolean("newAddressExport"));
 				//签发机构
 				settingMap.put("issueOrganTitle", rs.getString("issueOrganTitle"));
-				settingMap.put("issueOrganRow", rs.getString("issueOrganRow"));
+				settingMap.put("issueOrganRow", rs.getInt("issueOrganRow"));
 				settingMap.put("issueOrganColumn", rs.getInt("issueOrganColumn"));
 				settingMap.put("issueOrganExport", rs.getBoolean("issueOrganExport"));
 				//有效期起
 				settingMap.put("beginDateTitle", rs.getString("beginDateTitle"));
-				settingMap.put("beginDateRow", rs.getString("beginDateRow"));
+				settingMap.put("beginDateRow", rs.getInt("beginDateRow"));
 				settingMap.put("beginDateColumn", rs.getInt("beginDateColumn"));
 				settingMap.put("beginDateExport", rs.getBoolean("beginDateExport"));
 				//有效期止
 				settingMap.put("endDateTitle", rs.getString("endDateTitle"));
-				settingMap.put("endDateRow", rs.getString("endDateRow"));
+				settingMap.put("endDateRow", rs.getInt("endDateRow"));
 				settingMap.put("endDateColumn", rs.getInt("endDateColumn"));
 				settingMap.put("endDateExport", rs.getBoolean("endDateExport"));
 				//照片
 				settingMap.put("photoTitle", rs.getString("photoTitle"));
-				settingMap.put("photoRow", rs.getString("photoRow"));
+				settingMap.put("photoRow", rs.getInt("photoRow"));
 				settingMap.put("photoColumn", rs.getInt("photoColumn"));
 				settingMap.put("photoExport", rs.getBoolean("photoExport"));
 			}
@@ -280,5 +280,6 @@ public class SettingUI extends JFrame {
 			e.printStackTrace();
 		}
 		modelSettingPanel.fillData(conn, sID);
+		tablePanel.setSettingMap(settingMap);
 	}
 }
